@@ -4,6 +4,7 @@ import '../ui/register.dart';
 import '../util/util.dart';
 import '../impl/impl.dart';
 import '../bean/bean.dart';
+
 class LoginIndex extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -119,11 +120,46 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
     //login
     var url = 'http://192.168.0.110:8080/mwm/action.do?method=mwmLoginWithJson';
     print(url);
+    _showProgress();
+    //;
     Map<String, String> bodyParams = {
       'account': account,
       'password': password,
     };
     HttpUtil(url).post(bodyParams, this);
+  }
+
+  _showProgress() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Offstage(
+            offstage: false,
+            child: Container(
+                alignment: Alignment.center,
+                child: Container(
+                  constraints: BoxConstraints.expand(
+                      height: MediaQuery.of(context).size.height / 2),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.blue)),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          '加载中',
+                          style: TextStyle(
+                              inherit: false,
+                              color: Colors.white,
+                              fontSize: 16.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                )));
+      },
+    );
   }
 
   void start2ResetPassword() {
@@ -139,9 +175,27 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
 
   @override
   void onResult(int what, Object tag, String result) {
+    //有结果之后如何取消或者隐藏掉进度条dialog
     print(result);
-    ToastUtil.show(result);
-    //ResultBean<String> resultBean=ResultBean.f
+    ReturnAccountBean resultBean = ReturnAccountBean.json2Bean(result);
+    if (null == resultBean) {
+      return;
+    }
+    var code = resultBean.code;
+    var message = resultBean.message;
+    var accountBean = resultBean.obj;
+    if (TextUtils.equals("1", code)) {
+      String account =
+          null == accountBean ? "" : TextUtils.replaceNull(accountBean.account);
+      //PreferUtil.putLoginBean(activity, loginBean);
+      //intentBuilder.putExtra("account", account);
+      //startActivityByAct(MainActivity.class);
+      //intentBuilder.setAction(StrImpl.actionDownload);
+      //ImageService.startAction(activity, intentBuilder);
+      //finish();
+    } else
+      ToastUtil.show(message);
+    //showDialog(message);
   }
 
   @override

@@ -1,17 +1,40 @@
-abstract class Result<T> {
-  //String get code;
-  T getObj();
+import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
-  void setObj(T e);
+part 'bean.g.dart';
+
+@JsonSerializable()
+class ReturnAccountBean {
+  String code;
+  String message;
+  AccountBean obj;
+
+  ReturnAccountBean({this.code, this.message, this.obj});
+
+  static ReturnAccountBean json2Bean(String result) {
+    Map userMap = json.decode(result);
+    return ReturnAccountBean.fromJson(userMap);
+  }
+
+  factory ReturnAccountBean.fromJson(Map<String, dynamic> json) =>
+      _$ReturnAccountBeanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ReturnAccountBeanToJson(this);
 }
 
-abstract class ResultBean<T> {
-  String get code;
+@JsonSerializable()
+class AccountBean {
+  int locked;
+  String account;
+  String nickname;
+  String password;
+  String sign;
 
-  String get message;
+  AccountBean(
+      this.locked, this.account, this.nickname, this.password, this.sign);
 
-  T get obj;
+  factory AccountBean.fromJson(Map<String, dynamic> json) =>
+      _$AccountBeanFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{'code': code, 'message': message, 'obj': obj};
+  Map<String, dynamic> toJson() => _$AccountBeanToJson(this);
 }

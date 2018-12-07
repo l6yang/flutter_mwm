@@ -1,10 +1,18 @@
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../impl/impl.dart';
 
+import '../impl/impl.dart';
 class TextUtils {
   static bool isEmpty(String string) {
     return null == string || string.isEmpty;
+  }
+
+  static bool equals(String a, String b) {
+    return a == b;
+  }
+
+  static String replaceNull(String a) {
+    return isEmpty(a) || 'null' == a ? "" : a.trim();
   }
 }
 
@@ -45,8 +53,7 @@ class HttpUtil {
     var client = http.Client();
     client.post(baseUrl, body: bodyParams).then((response) {
       if (null != subscriberImpl)
-        subscriberImpl.onResult(
-            null == what ? 2 : what, tag, response.body);
+        subscriberImpl.onResult(null == what ? 2 : what, tag, response.body);
     }).catchError((error) {
       if (null != subscriberImpl)
         subscriberImpl.onError(null == what ? 2 : what, tag, error.toString());
