@@ -2,7 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
 part 'bean.g.dart';
-
+//需要在项目根目录运行以下命令--
+// flutter packages pub run build_runner build
 @JsonSerializable()
 class ReturnAccountBean {
   String code;

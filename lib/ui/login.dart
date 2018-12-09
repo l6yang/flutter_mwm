@@ -200,6 +200,7 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
 
   @override
   void onError(int what, Object tag, String error) {
+    print(error);
     ToastUtil.show(error);
   }
 }

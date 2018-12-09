@@ -99,9 +99,7 @@ class _ButtonState extends State<Button> {
               widget.data,
               textAlign: TextAlign.center,
               style: null == widget.style
-                  ? TextStyle(
-                      color: textColor,
-                      fontSize: widget.fontSize)
+                  ? TextStyle(color: textColor, fontSize: widget.fontSize)
                   : widget.style,
             )));
   }
@@ -314,7 +312,7 @@ class _EditClearState extends State<EditClearWidget> {
                 ? TextStyle(
                     fontSize: 15.0,
                     color: Colors.black,
-            )
+                  )
                 : widget.style,
           )),
           Container(
@@ -414,5 +412,75 @@ class _TextViewState extends State<TextView> {
   @override
   Widget build(BuildContext context) {
     return null;
+  }
+}
+
+class ProgressDialog extends StatefulWidget {
+  final String loadingText;
+  final Color textColor;
+  final bool outSideTouch;
+
+  const ProgressDialog(this.loadingText, {this.outSideTouch, this.textColor}):assert(null!=loadingText);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ProgressDialogState();
+  }
+}
+
+class _ProgressDialogState extends State<ProgressDialog> {
+  bool gone = false;
+  bool outSideCancel = true;
+
+  @override
+  void initState() {
+    gone = false;
+    outSideCancel = widget.outSideTouch == null ? true : widget.outSideTouch;
+    super.initState();
+  }
+
+  void updateState() {
+    setState(() {
+      if (this.outSideCancel) {
+        gone = !gone;
+      } else {}
+    });
+  }
+
+  void onDismiss() {
+    gone = true;
+  }
+
+  void onDismissListener() {}
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: onDismissListener,
+        child: Offstage(
+            offstage: gone,
+            child: Container(
+                alignment: Alignment.center,
+                child: Container(
+                  constraints: BoxConstraints.expand(
+                      height: MediaQuery.of(context).size.height / 2),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.blue)),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          widget.loadingText,
+                          style: TextStyle(
+                              inherit: false,
+                              color: Colors.white,
+                              fontSize: 16.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ))));
   }
 }
