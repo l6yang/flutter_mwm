@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './widget/widget.dart';
 import './ui/login.dart';
+import './util/util.dart';
 
 void main() => runApp(new MwMApp());
 
@@ -23,7 +24,8 @@ class SplashHome extends StatefulWidget {
 }
 
 class _SplashHomeState extends State<SplashHome> {
-  var hasStarted = false;
+  var state = "";
+  var duration = Duration(seconds: 3);
 
   @override
   void initState() {
@@ -33,7 +35,7 @@ class _SplashHomeState extends State<SplashHome> {
 
   void hasStartedNextPage() {
     setState(() {
-      hasStarted = true;
+      state = "started";
     });
   }
 
@@ -54,22 +56,24 @@ class _SplashHomeState extends State<SplashHome> {
             child: TimeDownView(
               '跳 过',
               onPressed: () {
+                print("start2Login");
                 toNextPage();
               },
             )));
   }
 
   void startThread() {
-    var duration = Duration(seconds: 3);
-    if (!hasStarted) new Future.delayed(duration, toNextPage);
+    new Future.delayed(duration, toNextPage);
   }
 
   void toNextPage() {
-    hasStartedNextPage();
-    Navigator.pushAndRemoveUntil(context,
-        new MaterialPageRoute(builder: (BuildContext context) {
-      return new LoginIndex();
-    }), (route) => route == null);
+    if (TextUtils.isEmpty(state)) {
+      hasStartedNextPage();
+      Navigator.pushAndRemoveUntil(context,
+          new MaterialPageRoute(builder: (BuildContext context) {
+        return new LoginIndex();
+      }), (route) => route == null);
+    }
   }
 }
 

@@ -1,5 +1,37 @@
 ﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../util/util.dart';
+
+class ClickLayout extends StatefulWidget {
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
+  final Widget child;
+  final VoidCallback onPressed;
+  final ValueChanged<bool> onHighlightChanged;
+
+  const ClickLayout(
+      {this.child,
+      @required this.onPressed,
+      this.padding,
+      this.margin,
+      this.onHighlightChanged});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _LayoutState();
+  }
+}
+
+class _LayoutState extends State<ClickLayout> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: InkWell(
+            onTap: widget.onPressed,
+            onHighlightChanged: widget.onHighlightChanged,
+            child: widget.child));
+  }
+}
 
 //Button
 class Button extends StatefulWidget {
@@ -54,12 +86,9 @@ class _ButtonState extends State<Button> {
 
   @override
   void initState() {
-    super.initState();
-    //Color defaultColor = widget.defaultColor;
-    //Color high = widget.highlightColor;
-    //print('$pressed  ::$defaultColor  ::$high');
     updateBackGround();
     updateTextColor();
+    super.initState();
   }
 
   @override
@@ -255,6 +284,55 @@ class _DialogState extends State<DialogWidget> {
 }
 
 /*带有清除的输入框*/
+class EditWidget extends StatefulWidget {
+  final String hintText;
+  final TextInputType keyboardType;
+  final bool obscureText;
+  final EdgeInsetsGeometry padding;
+  final TextEditingController controller;
+  final TextStyle style;
+  final AlignmentGeometry alignment;
+ final textAlign ;
+
+  const EditWidget(
+      {this.hintText,
+      this.obscureText: false,
+      this.keyboardType: TextInputType.emailAddress,
+      this.controller,
+      this.padding,
+      this.style,
+      this.alignment,
+      this.textAlign});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _EditState();
+  }
+}
+
+class _EditState extends State<EditWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: widget.alignment,
+      padding:
+          null == widget.padding ? EdgeInsets.only(left: 8.0) : widget.padding,
+      child: TextField(
+        textAlign: widget.textAlign,
+        controller: widget.controller,
+        obscureText: widget.obscureText,
+        decoration: InputDecoration.collapsed(hintText: widget.hintText),
+        style: null == widget.style
+            ? TextStyle(
+                fontSize: 15.0,
+                color: Colors.black,
+              )
+            : widget.style,
+      ),
+    );
+  }
+}
+
 class EditClearWidget extends StatefulWidget {
   final String hintText;
   final TextInputType keyboardType;
@@ -402,6 +480,14 @@ class _ExpandedButtonState extends State<ExpandedButton> {
 }
 
 class TextView extends StatefulWidget {
+  final AlignmentGeometry alignment;
+  final String text;
+  final EdgeInsetsGeometry padding, margin;
+  final TextStyle textStyle;
+
+  const TextView(this.text,
+      {this.alignment, this.padding, this.margin, this.textStyle});
+
   @override
   State<StatefulWidget> createState() {
     return _TextViewState();
@@ -411,76 +497,115 @@ class TextView extends StatefulWidget {
 class _TextViewState extends State<TextView> {
   @override
   Widget build(BuildContext context) {
-    return null;
+    return Container(
+      child: Text(
+        widget.text,
+        style: widget.textStyle,
+      ),
+      margin: widget.margin,
+      padding: widget.padding,
+      alignment:
+          null == widget.alignment ? Alignment.centerLeft : widget.alignment,
+    );
   }
 }
 
-class ProgressDialog extends StatefulWidget {
-  final String loadingText;
+class ProgressDialog extends Dialog {
+  final String text;
   final Color textColor;
-  final bool outSideTouch;
 
-  const ProgressDialog(this.loadingText, {this.outSideTouch, this.textColor}):assert(null!=loadingText);
-
-  @override
-  State<StatefulWidget> createState() {
-    return _ProgressDialogState();
-  }
-}
-
-class _ProgressDialogState extends State<ProgressDialog> {
-  bool gone = false;
-  bool outSideCancel = true;
-
-  @override
-  void initState() {
-    gone = false;
-    outSideCancel = widget.outSideTouch == null ? true : widget.outSideTouch;
-    super.initState();
-  }
-
-  void updateState() {
-    setState(() {
-      if (this.outSideCancel) {
-        gone = !gone;
-      } else {}
-    });
-  }
-
-  void onDismiss() {
-    gone = true;
-  }
-
-  void onDismissListener() {}
+  const ProgressDialog(this.text, {Key key, this.textColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onDismissListener,
-        child: Offstage(
-            offstage: gone,
-            child: Container(
-                alignment: Alignment.center,
-                child: Container(
-                  constraints: BoxConstraints.expand(
-                      height: MediaQuery.of(context).size.height / 2),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(Colors.blue)),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          widget.loadingText,
-                          style: TextStyle(
-                              inherit: false,
-                              color: Colors.white,
-                              fontSize: 16.0),
-                        ),
-                      ),
-                    ],
+    return Material(
+      //创建透明层
+      type: MaterialType.transparency, //透明类型
+      child: Center(
+        //保证控件居中效果
+        child: SizedBox(
+          width: 120.0,
+          height: 120.0,
+          child: Container(
+            decoration: ShapeDecoration(
+              //color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8.0),
+                ),
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 20.0,
                   ),
-                ))));
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        color: ObjUtils.isEmpty(textColor)
+                            ? Colors.blueAccent
+                            : textColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MwmDialog extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _MwmDialog();
+  }
+}
+
+class _MwmDialog extends State<MwmDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        floatingActionButton: Builder(builder: (BuildContext context) {
+      return FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return Container(
+                    child: Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              leading: Icon(Icons.chat),
+                              title: Text("开始会话"),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.help),
+                              title: Text("操作说明"),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.settings),
+                              title: Text("系统设置"),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.more),
+                              title: Text("更多设置"),
+                            ),
+                          ],
+                        )));
+              });
+        },
+        child: Icon(Icons.add),
+      );
+    }));
   }
 }

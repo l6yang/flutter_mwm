@@ -10,7 +10,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flutter_mwm_app"
+        android:label="flutter_mwm"
         android:icon="@mipmap/mwm">
         <activity
             android:name=".MainActivity"

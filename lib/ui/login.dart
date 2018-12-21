@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../widget/widget.dart';
+import 'package:flutter_mwm/ui/main.dart';
+
+import '../bean/bean.dart';
+import '../impl/impl.dart';
 import '../ui/register.dart';
 import '../util/util.dart';
-import '../impl/impl.dart';
-import '../bean/bean.dart';
+import '../widget/widget.dart';
 
 class LoginIndex extends StatefulWidget {
   @override
@@ -16,6 +18,12 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
   TextEditingController accountController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   TextEditingController ipController = new TextEditingController();
+
+  @override
+  void initState() {
+    _getShared();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +80,7 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
                             defaultTextColor: Color(0xFF0099CC),
                             highlightTextColor: Color(0xFF0066CC),
                             fontSize: 18.0,
-                            onPressed: start2ResetPassword,
+                            onPressed: _start2ResetPassword,
                           ),
                           Button(
                             "立即注册",
@@ -82,7 +90,7 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
                             defaultTextColor: Color(0xFF0099CC),
                             highlightTextColor: Color(0xFF0066CC),
                             fontSize: 18.0,
-                            onPressed: press2Register,
+                            onPressed: _press2Register,
                           )
                         ],
                       )),
@@ -98,7 +106,7 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
                           defaultTextColor: Color(0xFF0099CC),
                           highlightTextColor: Colors.white,
                           fontSize: 18.0,
-                          onPressed: start2Login)
+                          onPressed: _login)
                     ],
                   )
                 ],
@@ -106,7 +114,7 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
             )));
   }
 
-  void start2Login() {
+  void _login() {
     String account = accountController.text;
     if (TextUtils.isEmpty(account)) {
       ToastUtil.show('用户名不能为空！');
@@ -117,90 +125,77 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
       ToastUtil.show('密码不能为空！');
       return;
     }
-    //login
-    var url = 'http://192.168.0.110:8080/mwm/action.do?method=mwmLoginWithJson';
-    print(url);
-    _showProgress();
-    //;
+    AccountBean accountBean = AccountBean(account: account, password: password);
     Map<String, String> bodyParams = {
-      'account': account,
-      'password': password,
+      'beanJson': GsonUtil.bean2Json(accountBean)
     };
-    HttpUtil(url).post(bodyParams, this);
+    var http = HttpUtil(context, 'mwmLogin');
+    http.post(bodyParams, this);
   }
 
-  _showProgress() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Offstage(
-            offstage: false,
-            child: Container(
-                alignment: Alignment.center,
-                child: Container(
-                  constraints: BoxConstraints.expand(
-                      height: MediaQuery.of(context).size.height / 2),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(Colors.blue)),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          '加载中',
-                          style: TextStyle(
-                              inherit: false,
-                              color: Colors.white,
-                              fontSize: 16.0),
-                        ),
-                      ),
-                    ],
-                  ),
-                )));
-      },
-    );
-  }
-
-  void start2ResetPassword() {
+  void _start2ResetPassword() {
     print('resetPassword');
   }
 
-  void press2Register() {
+  void _press2Register() {
     Navigator.push(context,
-        new MaterialPageRoute(builder: (BuildContext context) {
-      return new RegisterIndex();
-    }));
+          MaterialPageRoute(builder: (BuildContext context) {
+      return   RegisterIndex();
+    })).then((value) {
+      if (!TextUtils.isEmpty(value)) {
+        accountController.text = value;
+        passwordController.text = '';
+      }
+    });
   }
 
   @override
   void onResult(int what, Object tag, String result) {
-    //有结果之后如何取消或者隐藏掉进度条dialog
-    print(result);
-    ReturnAccountBean resultBean = ReturnAccountBean.json2Bean(result);
-    if (null == resultBean) {
-      return;
+    try {
+      print(result);
+      ReturnAccountBean resultBean = ReturnAccountBean.json2Bean(result);
+      if (null == resultBean) {
+        DialogUtil(context, "数据格式错误或未返回数据！").show();
+        return;
+      }
+      var code = resultBean.code;
+      var message = resultBean.message;
+      var accountBean = resultBean.obj;
+      if (TextUtils.equals("1", code)) {
+        String json = GsonUtil.bean2Json(accountBean);
+        print('json#$json');
+        PreferUtil.set("accountJson", json);
+        //intentBuilder.putExtra("account", account);
+        _start2Main(json);
+        //intentBuilder.setAction(StrImpl.actionDownload);
+        //ImageService.startAction(activity, intentBuilder);
+      } else
+        DialogUtil(context, message).show();
+    } catch (error) {
+      onError(what, tag, error.toString());
     }
-    var code = resultBean.code;
-    var message = resultBean.message;
-    var accountBean = resultBean.obj;
-    if (TextUtils.equals("1", code)) {
-      String account =
-          null == accountBean ? "" : TextUtils.replaceNull(accountBean.account);
-      //PreferUtil.putLoginBean(activity, loginBean);
-      //intentBuilder.putExtra("account", account);
-      //startActivityByAct(MainActivity.class);
-      //intentBuilder.setAction(StrImpl.actionDownload);
-      //ImageService.startAction(activity, intentBuilder);
-      //finish();
-    } else
-      ToastUtil.show(message);
-    //showDialog(message);
+  }
+
+  void _start2Main(String beanJson) {
+    Navigator.pushAndRemoveUntil(context,
+        new MaterialPageRoute(builder: (BuildContext context) {
+      return new MainIndex(beanJson: beanJson,);
+    }), (route) => route == null);
   }
 
   @override
   void onError(int what, Object tag, String error) {
-    print(error);
-    ToastUtil.show(error);
+    DialogUtil(context, error).show();
+  }
+
+  void _getShared() {
+    PreferUtil.get("accountJson").then((accountJson) {
+      print("PreferUtil--$accountJson");
+      if (!TextUtils.isEmpty(accountJson)) {
+        AccountBean accountBean = AccountBean.json2Bean(accountJson);
+        accountController.text = accountBean.account;
+        passwordController.text = accountBean.password;
+      }
+    });
   }
 }

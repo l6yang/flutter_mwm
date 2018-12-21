@@ -3,6 +3,3 @@ abstract class HttpSubscriberImpl {
 
   void onError(int what, Object tag, String error);
 }
-abstract class HttpImpl{
-
-}
