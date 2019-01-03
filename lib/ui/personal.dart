@@ -140,7 +140,7 @@ class _PersonalIndexState extends State<PersonalIndex>
   Widget _topLeftView(String text) {
     return TextView(
       text,
-      textStyle: TextStyle(fontSize: 16.0, color: Color(0xFF808080)),
+      style: TextStyle(fontSize: 16.0, color: Color(0xFF808080)),
       margin: EdgeInsets.only(
         top: 10.0,
       ),
@@ -185,7 +185,7 @@ class _PersonalIndexState extends State<PersonalIndex>
     return TextView(text,
         padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
         alignment: Alignment.bottomRight,
-        textStyle: TextStyle(fontSize: 18.0, color: Color(0xFF808080)));
+        style: TextStyle(fontSize: 18.0, color: Colors.black));
   }
 
   Widget _bottomQrView() {

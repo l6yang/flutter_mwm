@@ -8,13 +8,15 @@ class ClickLayout extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
   final ValueChanged<bool> onHighlightChanged;
+  final GestureLongPressCallback onLongPress;
 
   const ClickLayout(
       {this.child,
-      @required this.onPressed,
+      this.onPressed,
       this.padding,
       this.margin,
-      this.onHighlightChanged});
+      this.onHighlightChanged,
+      this.onLongPress});
 
   @override
   State<StatefulWidget> createState() {
@@ -26,8 +28,11 @@ class _LayoutState extends State<ClickLayout> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        padding: widget.padding,
+        margin: widget.margin,
         child: InkWell(
             onTap: widget.onPressed,
+            onLongPress: widget.onLongPress,
             onHighlightChanged: widget.onHighlightChanged,
             child: widget.child));
   }
@@ -292,7 +297,7 @@ class EditWidget extends StatefulWidget {
   final TextEditingController controller;
   final TextStyle style;
   final AlignmentGeometry alignment;
- final textAlign ;
+  final textAlign;
 
   const EditWidget(
       {this.hintText,
@@ -483,10 +488,10 @@ class TextView extends StatefulWidget {
   final AlignmentGeometry alignment;
   final String text;
   final EdgeInsetsGeometry padding, margin;
-  final TextStyle textStyle;
+  final TextStyle style;
 
   const TextView(this.text,
-      {this.alignment, this.padding, this.margin, this.textStyle});
+      {this.alignment, this.padding, this.margin, this.style});
 
   @override
   State<StatefulWidget> createState() {
@@ -500,7 +505,7 @@ class _TextViewState extends State<TextView> {
     return Container(
       child: Text(
         widget.text,
-        style: widget.textStyle,
+        style: widget.style,
       ),
       margin: widget.margin,
       padding: widget.padding,

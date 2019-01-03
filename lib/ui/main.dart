@@ -43,18 +43,32 @@ class _MainState extends State<MainIndex> implements HttpSubscriberImpl {
           centerTitle: true,
         ),
         drawer: Drawer(
-          child: ListView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               UserAccountsDrawerHeader(
-                accountName: Text('$account'),
+                decoration: BoxDecoration(color: Color(0xFF051728)),
+                accountName: Text(account),
                 accountEmail: Text(
-                  '$signStr',
+                  signStr,
                   style: TextStyle(color: color),
                 ),
                 otherAccountsPictures: <Widget>[
                   _qrView(),
                 ],
                 currentAccountPicture: _iconView(),
+              ),
+              ClickLayout(child: Text('1'),onPressed: ((){print('---');}),),
+              Text('1'),
+              Text('1'),
+              Text('1'),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text('bottom'),
+                  ],
+                ),
               )
             ],
           ),

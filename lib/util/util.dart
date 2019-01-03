@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' show Color;
-
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../impl/impl.dart';
 import '../widget/widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 class TextUtils {
   static bool isEmpty(String string) {
@@ -137,16 +139,17 @@ class DialogUtil {
   final BuildContext context;
   final String message;
   final String btnText;
+  final VoidCallback callback;
+  final bool outsideDismiss;
 
-  const DialogUtil(
-    this.context,
-    this.message, {
-    this.btnText,
-  }) : assert(null != context);
+  const DialogUtil(this.context, this.message,
+      {this.btnText, this.callback, this.outsideDismiss})
+      : assert(null != context);
 
   void show() {
     showDialog<bool>(
       context: context,
+      barrierDismissible: null == outsideDismiss ? false : outsideDismiss,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -156,7 +159,7 @@ class DialogUtil {
           ),
           title: Text('温馨提示'),
           contentPadding: EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
-          content: Text(
+          content: TextView(
             message,
             style: TextStyle(color: Colors.red, fontSize: 18.0),
           ),
@@ -168,13 +171,22 @@ class DialogUtil {
                 style: TextStyle(fontSize: 16.0),
               ),
               onPressed: () {
-                Navigator.of(context).pop(true);
+                if (null != callback)
+                  callback();
+                else {
+                  //Navigator.of(context).pop(true);
+                  dismiss();
+                }
               },
             ),
           ],
         );
       },
     );
+  }
+
+  void dismiss() {
+    if (null != context) Navigator.pop(context);
   }
 }
 
@@ -212,5 +224,46 @@ class GsonUtil {
   static String list2Json(Object obj) {
     if (null == obj) return "[]";
     return json.encode(obj);
+  }
+}
+
+class FileUtil {
+  static Future<String> getInstance() async {
+    Directory parentDir = await getApplicationDocumentsDirectory();
+    String path = parentDir.path;
+    return path;
+  }
+
+  static Future<Directory> createDir(String dirName) async {
+    String dirPath = await getInstance();
+    Directory parentDir =
+        await Directory('$dirPath${Platform.pathSeparator}images')
+            .create(recursive: true);
+    return parentDir;
+  }
+
+  static Future<File> createFile(String filePath, String content) async {
+    String dirPath = await getInstance();
+    File file = File('$dirPath/$filePath');
+    Future<bool> exists = file.exists();
+    if (!await exists) {
+      file.create(recursive: true);
+    }
+    file = await file.writeAsString(content, flush: true);
+    return file;
+  }
+}
+
+class PermissionKit {
+  static Future<bool> request(Permission permission) async {
+    bool res = await SimplePermissions.checkPermission(permission);
+    if (res)
+      return true;
+    else {
+      PermissionStatus res =
+          await SimplePermissions.requestPermission(permission);
+      print("permission request result is " + res.toString());
+      return res == PermissionStatus.authorized;
+    }
   }
 }

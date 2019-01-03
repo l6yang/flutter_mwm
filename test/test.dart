@@ -7,4 +7,13 @@ void main() {
   print(jsonStr);
   var user = ReturnAccountBean.json2Bean(jsonStr);
   print(json.encode(user.obj));
+  Map<String,dynamic> map={
+  };
+
+  map.putIfAbsent("code", ()=>"-1");
+  map.putIfAbsent("message", ()=>"fail");
+  map.putIfAbsent("obj", ()=>"error");
+ ReturnBean returnBean= ReturnBean.fromJson(map);
+ print(returnBean.code);
+ print(returnBean.message);
 }
