@@ -24,21 +24,16 @@ class _QrCodeIndexIndexState extends State<QrCodeIndex> {
         actions: <Widget>[_actionView()],
       ),
       body: Center(
-        child: ClickLayout(
-            child: QrImage(
-              data: 'test',
-              size: 256.0,
-              onError: (error) {
-                print(error);
-              },
-            ),
-            onLongPress: () => _action()),
+        child: ClickLayout(child: _qrView(), onLongPress: () => _action()),
       ),
     );
   }
 
+  //-----------View-------------
+
   var _actionUrl = 'images/menu_white.png';
 
+  /*标题栏action*/
   Widget _actionView() {
     return ClickLayout(
         onPressed: () => _action(),
@@ -58,8 +53,48 @@ class _QrCodeIndexIndexState extends State<QrCodeIndex> {
         });
   }
 
+  QrImage qrView;
+
+  /*二维码*/
+  Widget _qrView() {
+    /*qrView = QrImage(
+      data: 'test',
+      size: 256.0,
+      onError: (error) {
+        print(error);
+      },
+    );
+    return qrView;*/
+    return QrImage(
+      data: 'test',
+      size: 256.0,
+      onError: (error) {
+        print(error);
+      },
+    );
+  }
+
+  Widget _line() {
+    return Line(
+      color: Colors.grey[300],
+      height: 1,
+    );
+  }
+
+  Widget _bottomItemMenu(String menuText, {GestureTapCallback itemCallback}) {
+    return ListTile(
+      dense: true,
+      title: TextView(
+        menuText,
+        style: TextStyle(fontSize: 18.0, color: Colors.black),
+      ),
+      onTap: itemCallback,
+    );
+  }
+
+  //---------method---------
+
   void _action() {
-    print('action');
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -83,24 +118,6 @@ class _QrCodeIndexIndexState extends State<QrCodeIndex> {
             ],
           );
         });
-  }
-
-  Widget _line() {
-    return Line(
-      color: Colors.grey[300],
-      height: 1,
-    );
-  }
-
-  Widget _bottomItemMenu(String menuText, {GestureTapCallback itemCallback}) {
-    return ListTile(
-      dense: true,
-      title: TextView(
-        menuText,
-        style: TextStyle(fontSize: 18.0, color: Colors.black),
-      ),
-      onTap: itemCallback,
-    );
   }
 
   /*保存二维码*/

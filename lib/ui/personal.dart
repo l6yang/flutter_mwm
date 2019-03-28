@@ -159,7 +159,7 @@ class _PersonalIndexState extends State<PersonalIndex>
 
   Widget _bottomNickNameView(String text) {
     return _actionEdit
-        ? EditWidget(
+        ? EditText(
             textAlign: TextAlign.end,
             alignment: Alignment.bottomRight,
             controller: nickNameController,
@@ -171,7 +171,7 @@ class _PersonalIndexState extends State<PersonalIndex>
   Widget _bottomSignView(String text) {
     var hintStr = TextUtils.isEmpty(text) ? '这个人很懒...' : sign;
     return _actionEdit
-        ? EditWidget(
+        ? EditText(
             textAlign: TextAlign.end,
             padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
             alignment: Alignment.bottomRight,
@@ -202,7 +202,7 @@ class _PersonalIndexState extends State<PersonalIndex>
       onPressed: _start2QrPage,
     );
   }
-
+//-------method----------
   void _start2QrPage() {
     Navigator.push(context,
         new MaterialPageRoute(builder: (BuildContext context) {

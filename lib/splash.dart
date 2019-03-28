@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mwm/ui/city.dart';
 import './widget/widget.dart';
 import './ui/login.dart';
 import './util/util.dart';
 
-void main() => runApp(new MwMApp());
+void main() => runApp(MwMApp());
 
 class MwMApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       theme: ThemeData(
           // accentColor: Colors.white FloatingActionButton真是通过这种方式找到accentColor
           ),
-      home: new SplashHome(),
+      home: SplashHome(),
       title: 'MwM',
     );
   }
@@ -20,7 +21,7 @@ class MwMApp extends StatelessWidget {
 
 class SplashHome extends StatefulWidget {
   @override
-  State createState() => new _SplashHomeState();
+  State createState() => _SplashHomeState();
 }
 
 class _SplashHomeState extends State<SplashHome> {
@@ -63,15 +64,16 @@ class _SplashHomeState extends State<SplashHome> {
   }
 
   void startThread() {
-    new Future.delayed(duration, toNextPage);
+    Future.delayed(duration, toNextPage);
   }
 
   void toNextPage() {
     if (TextUtils.isEmpty(state)) {
       hasStartedNextPage();
       Navigator.pushAndRemoveUntil(context,
-          new MaterialPageRoute(builder: (BuildContext context) {
-        return new LoginIndex();
+          MaterialPageRoute(builder: (BuildContext context) {
+        return /*LoginIndex()*/
+          CityIndex();
       }), (route) => route == null);
     }
   }

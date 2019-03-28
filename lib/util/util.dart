@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show Color;
-import 'package:path_provider/path_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 import '../impl/impl.dart';
 import '../widget/widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_permissions/simple_permissions.dart';
 
 class TextUtils {
   static bool isEmpty(String string) {
@@ -77,25 +79,25 @@ class HttpUtil {
       var client = http.Client();
       client
           .post('$baseUrl$method', body: bodyParams, encoding: Utf8Codec())
-          .catchError((onError) {
-            _hide();
-            if (null != subscriberImpl)
-              subscriberImpl.onError(
-                  null == what ? 2 : what, tag, onError.toString());
-          })
           .then((response) {
             _hide();
-            if (null != subscriberImpl)
-              subscriberImpl.onResult(
-                  null == what ? 2 : what, tag, response.body);
+            /*if (null != subscriberImpl)
+                subscriberImpl.onResult(
+                    null == what ? 2 : what, tag, response.body);*/
+            Future.delayed(Duration(milliseconds: 300), () {
+              if (null != subscriberImpl)
+                subscriberImpl.onResult(
+                    null == what ? 2 : what, tag, response.body);
+            });
           })
           .timeout(Duration(seconds: 15))
-          .whenComplete(client.close);
-    } catch (exception) {
-      _hide();
-      if (null != subscriberImpl)
-        subscriberImpl.onError(
-            null == what ? 2 : what, tag, exception.toString());
+          .whenComplete(client.close)
+          .catchError((error) {
+            print('whenComplete--error--${error.toString()}');
+            _error(error, subscriberImpl);
+          });
+    } catch (error) {
+      _error(error, subscriberImpl);
     }
   }
 
@@ -132,6 +134,15 @@ class HttpUtil {
     if (null != context) Navigator.pop(context);
     //Navigator.of(context).pop(true);
   }
+
+  void _error(Object error, HttpSubscriberImpl subscriberImpl) {
+    _hide();
+    Future.delayed(Duration(milliseconds: 300), () {
+      if (null != subscriberImpl)
+        subscriberImpl.onError(
+            null == what ? 2 : what, tag, ConnectUtil.getError(error));
+    });
+  }
 }
 
 //使用dialog或者progressDialog的时候⚠注意全局context和当前控件的context
@@ -158,11 +169,9 @@ class DialogUtil {
             ),
           ),
           title: Text('温馨提示'),
-          contentPadding: EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
-          content: TextView(
-            message,
-            style: TextStyle(color: Colors.red, fontSize: 18.0),
-          ),
+          contentPadding: EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0),
+          content: Text(message,
+              style: TextStyle(color: Colors.red, fontSize: 18.0)),
           actions: <Widget>[
             FlatButton(
               textColor: Colors.black,
@@ -265,5 +274,21 @@ class PermissionKit {
       print("permission request result is " + res.toString());
       return res == PermissionStatus.authorized;
     }
+  }
+}
+
+class ConnectUtil {
+  static String getError(Object error) {
+    print('getError=${error.toString()}');
+    if (null == error) {
+      return "未知异常";
+    }
+    if (error is SocketException) {
+      //error.address;
+      return error.osError.message;
+    } else if (error is TimeoutException) {
+      return '连接服务器超时';
+    } else
+      return error.toString();
   }
 }

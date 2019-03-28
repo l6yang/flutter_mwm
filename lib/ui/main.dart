@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mwm/ui/personal.dart';
-import 'package:flutter_mwm/ui/qrcode.dart';
-
+import 'package:flutter_image/network.dart';
+import 'package:flutter_mwm/ui/weather.dart';
+import '../ui/personal.dart';
+import '../ui/qrcode.dart';
 import '../bean/bean.dart';
 import '../impl/impl.dart';
 import '../util/util.dart';
 import '../widget/widget.dart';
-import 'package:flutter_image/network.dart';
 
 class MainIndex extends StatefulWidget {
   final String beanJson;
@@ -21,6 +21,7 @@ class MainIndex extends StatefulWidget {
 
 class _MainState extends State<MainIndex> implements HttpSubscriberImpl {
   var account = '', sign = "", iconUrl = '';
+  var cityName = '西安';
 
   @override
   void initState() {
@@ -28,9 +29,9 @@ class _MainState extends State<MainIndex> implements HttpSubscriberImpl {
       AccountBean accountBean = AccountBean.json2Bean(widget.beanJson);
       account = accountBean.account;
       sign = accountBean.sign;
-      iconUrl = HttpUtil(context, 'mwmShowIconByIO').getAccountIcon(account);
     }
     super.initState();
+    iconUrl = HttpUtil(context, 'mwmShowIconByIO').getAccountIcon(account);
   }
 
   @override
@@ -58,18 +59,9 @@ class _MainState extends State<MainIndex> implements HttpSubscriberImpl {
                 ],
                 currentAccountPicture: _iconView(),
               ),
-              ClickLayout(child: Text('1'),onPressed: ((){print('---');}),),
-              Text('1'),
-              Text('1'),
-              Text('1'),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text('bottom'),
-                  ],
-                ),
-              )
+              _menuView('1', null),
+              _flexView(),
+              _weatherView(),
             ],
           ),
         ),
@@ -128,6 +120,66 @@ class _MainState extends State<MainIndex> implements HttpSubscriberImpl {
             imgUrl = changed ? 'images/qr_pressed.png' : 'images/qr_normal.png';
           });
         });
+  }
+
+  /*侧滑菜单*/
+  Widget _menuView(String text, VoidCallback callBack) {
+    return ClickLayout(
+      child: Text(text),
+      onPressed: callBack,
+    );
+  }
+
+  /*用来将weatherView放置在右下角*/
+  Widget _flexView() {
+    return Expanded(
+      child: Text(''),
+    );
+  }
+
+  /*底部天气☁️*/
+  Widget _weatherView() {
+    return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+      Container(
+        child: ClickLayout(
+            onPressed: _weather,
+            child: Column(
+              children: <Widget>[
+                TextView(
+                  '-2˚',
+                  style: TextStyle(
+                      color: Colors.indigoAccent,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.right,
+                  alignment: Alignment.centerRight,
+                  margin: EdgeInsets.only(bottom: 4.0),
+                  padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 8.0),
+                ),
+                TextView(
+                  cityName,
+                  style: TextStyle(color: Colors.black, fontSize: 18.0),
+                  textAlign: TextAlign.right,
+                  padding:
+                      EdgeInsets.only(left: 15.0, right: 15.0, bottom: 10.0),
+                  alignment: Alignment.centerRight,
+                ),
+              ],
+            )),
+      ),
+    ]);
+  }
+
+  void _weather() {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+      return WeatherIndex();
+    })).then((value) {
+      if (!TextUtils.isEmpty(value)) {
+        setState(() {
+          cityName = value;
+        });
+      }
+    });
   }
 
   @override

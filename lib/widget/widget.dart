@@ -9,14 +9,19 @@ class ClickLayout extends StatefulWidget {
   final VoidCallback onPressed;
   final ValueChanged<bool> onHighlightChanged;
   final GestureLongPressCallback onLongPress;
+  final Color color;
+  final Decoration decoration;
 
-  const ClickLayout(
-      {this.child,
-      this.onPressed,
-      this.padding,
-      this.margin,
-      this.onHighlightChanged,
-      this.onLongPress});
+  const ClickLayout({
+    this.child,
+    this.onPressed,
+    this.padding,
+    this.margin,
+    this.onHighlightChanged,
+    this.onLongPress,
+    this.color,
+    this.decoration,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -28,8 +33,10 @@ class _LayoutState extends State<ClickLayout> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        color: widget.color,
         padding: widget.padding,
         margin: widget.margin,
+        decoration: widget.decoration,
         child: InkWell(
             onTap: widget.onPressed,
             onLongPress: widget.onLongPress,
@@ -155,109 +162,6 @@ class Line extends StatelessWidget {
   }
 }
 
-//List
-class ListWidget extends StatefulWidget {
-  final String data;
-
-  const ListWidget(this.data);
-
-  @override
-  State<StatefulWidget> createState() {
-    return _ListState();
-  }
-}
-
-class _ListState extends State<ListWidget> {
-  @override
-  Widget build(BuildContext context) {
-    String title = widget.data;
-    return Scaffold(
-      appBar:
-          null == title ? null : AppBar(title: Text(title), centerTitle: true),
-      body: Column(
-        children: <Widget>[
-          Line(height: 1.0, color: Colors.white),
-          Container(
-            child: _MainTitleText(),
-            color: const Color(0xff067ff0),
-          ),
-          Line(height: 1.0, color: Colors.white),
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                if (index.isOdd) {
-                  return Line(height: 1.0, color: Colors.green);
-                }
-                return Text('$index');
-              },
-              itemCount: 50,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class _MainTitleText extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _MainTitleState();
-  }
-}
-
-class _MainTitleState extends State<_MainTitleText> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        _TitleText(
-          '号牌号码',
-          lineWidth: 0.0,
-        ),
-        _TitleText(
-          '所有人',
-          lineWidth: 1.0,
-        ),
-        _TitleText(
-          '录入时间',
-          lineWidth: 1.0,
-        ),
-      ],
-    );
-  }
-}
-
-class _TitleText extends StatefulWidget {
-  final String data;
-  final double lineWidth;
-
-  const _TitleText(this.data, {this.lineWidth});
-
-  @override
-  State<StatefulWidget> createState() {
-    return _TitleTextState();
-  }
-}
-
-class _TitleTextState extends State<_TitleText> {
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Container(
-            child: Text(
-              widget.data,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18.0, color: Colors.white),
-            ),
-            padding: EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-                border: Border(
-                    left: BorderSide(
-                        width: widget.lineWidth, color: Colors.white)))));
-  }
-}
-
 //Dialog
 class DialogWidget extends StatefulWidget {
   @override
@@ -289,7 +193,7 @@ class _DialogState extends State<DialogWidget> {
 }
 
 /*带有清除的输入框*/
-class EditWidget extends StatefulWidget {
+class EditText extends StatefulWidget {
   final String hintText;
   final TextInputType keyboardType;
   final bool obscureText;
@@ -297,9 +201,13 @@ class EditWidget extends StatefulWidget {
   final TextEditingController controller;
   final TextStyle style;
   final AlignmentGeometry alignment;
-  final textAlign;
+  final TextAlign textAlign;
+  final bool showQueryIcon;
+  final bool showClearIcon;
+  final Decoration decoration;
+  final EdgeInsetsGeometry margin;
 
-  const EditWidget(
+  const EditText(
       {this.hintText,
       this.obscureText: false,
       this.keyboardType: TextInputType.emailAddress,
@@ -307,7 +215,11 @@ class EditWidget extends StatefulWidget {
       this.padding,
       this.style,
       this.alignment,
-      this.textAlign});
+      this.textAlign,
+      this.margin,
+      this.decoration,
+      this.showQueryIcon = false,
+      this.showClearIcon = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -315,52 +227,7 @@ class EditWidget extends StatefulWidget {
   }
 }
 
-class _EditState extends State<EditWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: widget.alignment,
-      padding:
-          null == widget.padding ? EdgeInsets.only(left: 8.0) : widget.padding,
-      child: TextField(
-        textAlign: widget.textAlign,
-        controller: widget.controller,
-        obscureText: widget.obscureText,
-        decoration: InputDecoration.collapsed(hintText: widget.hintText),
-        style: null == widget.style
-            ? TextStyle(
-                fontSize: 15.0,
-                color: Colors.black,
-              )
-            : widget.style,
-      ),
-    );
-  }
-}
-
-class EditClearWidget extends StatefulWidget {
-  final String hintText;
-  final TextInputType keyboardType;
-  final bool obscureText;
-  final EdgeInsetsGeometry padding;
-  final TextEditingController controller;
-  final TextStyle style;
-
-  const EditClearWidget(
-      {this.hintText,
-      this.obscureText: false,
-      this.keyboardType: TextInputType.emailAddress,
-      this.controller,
-      this.padding,
-      this.style});
-
-  @override
-  State<StatefulWidget> createState() {
-    return _EditClearState();
-  }
-}
-
-class _EditClearState extends State<EditClearWidget> {
+class _EditState extends State<EditText> {
   bool iconVisible = false;
   IconData icon;
 
@@ -378,34 +245,44 @@ class _EditClearState extends State<EditClearWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: null == widget.padding
-            ? EdgeInsets.only(left: 8.0)
-            : widget.padding,
-        child: Row(children: <Widget>[
-          Flexible(
-              child: TextField(
-            onChanged: (String inputText) {
-              submitter(inputText);
-            },
-            controller: widget.controller,
-            onSubmitted: submitter,
-            obscureText: widget.obscureText,
-            decoration: InputDecoration.collapsed(hintText: widget.hintText),
-            style: null == widget.style
-                ? TextStyle(
-                    fontSize: 15.0,
-                    color: Colors.black,
-                  )
-                : widget.style,
-          )),
-          Container(
-              child: IconButton(
-                  icon: Icon(null == widget.controller ? null : icon),
-                  onPressed: () {
-                    widget.controller.clear();
-                    submitter('');
-                  }))
-        ]));
+      alignment: widget.alignment,
+      decoration: widget.decoration,
+      padding: widget.padding,
+      margin: widget.margin,
+      child: TextField(
+        onChanged: (String inputText) {
+          submitter(inputText);
+        },
+        controller: widget.controller,
+        onSubmitted: submitter,
+        obscureText: widget.obscureText,
+        decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: widget.hintText,
+            //前缀Icon
+            prefixIcon: widget.showQueryIcon ? Icon(Icons.search) : null,
+            //后缀Icon
+            suffixIcon: widget.showClearIcon ? _suffixIcon() : null),
+        style: null == widget.style ? _textStyle() : widget.style,
+      ),
+    );
+  }
+
+  Widget _suffixIcon() {
+    return IconButton(
+      icon: Icon(null == widget.controller ? null : icon),
+      onPressed: (() {
+        widget.controller.clear();
+        submitter('');
+      }),
+    );
+  }
+
+  TextStyle _textStyle() {
+    return TextStyle(
+      fontSize: 15.0,
+      color: Colors.black,
+    );
   }
 }
 
@@ -489,9 +366,18 @@ class TextView extends StatefulWidget {
   final String text;
   final EdgeInsetsGeometry padding, margin;
   final TextStyle style;
+  final TextAlign textAlign;
+  final Color color;
+  final Decoration decoration;
 
   const TextView(this.text,
-      {this.alignment, this.padding, this.margin, this.style});
+      {this.alignment,
+      this.padding,
+      this.margin,
+      this.style,
+      this.textAlign,
+      this.color,
+      this.decoration});
 
   @override
   State<StatefulWidget> createState() {
@@ -503,9 +389,12 @@ class _TextViewState extends State<TextView> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: widget.color,
+      decoration: widget.decoration,
       child: Text(
         widget.text,
         style: widget.style,
+        textAlign: widget.textAlign,
       ),
       margin: widget.margin,
       padding: widget.padding,

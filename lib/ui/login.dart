@@ -51,19 +51,26 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
                     ),
                     child: Column(
                       children: <Widget>[
-                        EditClearWidget(
+                        EditText(
+                          showClearIcon: true,
+                          padding: EdgeInsets.only(left: 8.0),
                           hintText: '用户账号(仅限数字和字母)',
                           controller: accountController,
                         ),
                         Line(height: 1.0, color: Color(0xFF00cccc)),
-                        EditClearWidget(
+                        EditText(
+                          showClearIcon: true,
+                            padding: EdgeInsets.only(left: 8.0),
                             keyboardType: TextInputType.emailAddress,
                             hintText: '用户密码',
                             obscureText: true,
                             controller: passwordController),
                         Line(height: 1.0, color: Color(0xFF00cccc)),
-                        EditClearWidget(
-                            hintText: '服务器接入地址', controller: ipController)
+                        EditText(
+                            showClearIcon: true,
+                            padding: EdgeInsets.only(left: 8.0),
+                            hintText: '服务器接入地址',
+                            controller: ipController)
                       ],
                     ),
                   ),
@@ -138,9 +145,8 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
   }
 
   void _press2Register() {
-    Navigator.push(context,
-          MaterialPageRoute(builder: (BuildContext context) {
-      return   RegisterIndex();
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+      return RegisterIndex();
     })).then((value) {
       if (!TextUtils.isEmpty(value)) {
         accountController.text = value;
@@ -179,12 +185,15 @@ class _LoginIndexState extends State<LoginIndex> implements HttpSubscriberImpl {
   void _start2Main(String beanJson) {
     Navigator.pushAndRemoveUntil(context,
         new MaterialPageRoute(builder: (BuildContext context) {
-      return new MainIndex(beanJson: beanJson,);
+      return new MainIndex(
+        beanJson: beanJson,
+      );
     }), (route) => route == null);
   }
 
   @override
   void onError(int what, Object tag, String error) {
+    print('override--onError----$error');
     DialogUtil(context, error).show();
   }
 

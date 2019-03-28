@@ -51,23 +51,31 @@ class _RegisterIndexState extends State<RegisterIndex>
                     ),
                     child: Column(
                       children: <Widget>[
-                        EditClearWidget(
+                        EditText(
+                          showClearIcon: true,
+                          padding: EdgeInsets.only(left: 8.0),
                           hintText: '账号名称(仅限数字和字母)',
                           controller: accountController,
                         ),
                         Line(height: 1.0, color: lineColor),
-                        EditClearWidget(
+                        EditText(
+                          showClearIcon: true,
+                          padding: EdgeInsets.only(left: 8.0),
                           hintText: '昵称(可不填，默认使用账号名称)',
                           controller: nicknameController,
                         ),
                         Line(height: 1.0, color: lineColor),
-                        EditClearWidget(
+                        EditText(
+                            showClearIcon: true,
+                            padding: EdgeInsets.only(left: 8.0),
                             keyboardType: TextInputType.emailAddress,
                             hintText: '用户密码',
                             obscureText: true,
                             controller: passwordController),
                         Line(height: 1.0, color: lineColor),
-                        EditClearWidget(
+                        EditText(
+                            showClearIcon: true,
+                            padding: EdgeInsets.only(left: 8.0),
                             keyboardType: TextInputType.emailAddress,
                             hintText: '再次输入密码',
                             obscureText: true,
