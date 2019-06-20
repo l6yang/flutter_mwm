@@ -503,3 +503,26 @@ class _MwmDialog extends State<MwmDialog> {
     }));
   }
 }
+
+class BaseParent extends StatefulWidget {
+  final Widget body;
+  final Widget appBar;
+
+  const BaseParent({this.body, this.appBar});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ParentState();
+  }
+}
+
+class _ParentState extends State<BaseParent> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.body,
+      appBar: widget.appBar,
+      backgroundColor: Color(0XFFEEEEEE),
+    );
+  }
+}

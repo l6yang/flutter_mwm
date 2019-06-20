@@ -20,7 +20,7 @@ class _RegisterIndexState extends State<RegisterIndex>
 
   @override
   Widget build(BuildContext context) {
-    Color lineColor = Color(0xFF00cccc);
+    Color lineColor = Color(0xFF00CCCC);
     return Scaffold(
         appBar: AppBar(
           title: Text('快速注册'),

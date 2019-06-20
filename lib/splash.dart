@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mwm/ui/city.dart';
-import './widget/widget.dart';
-import './ui/login.dart';
+
 import './util/util.dart';
+import './widget/widget.dart';
 
 void main() => runApp(MwMApp());
 
